@@ -2,7 +2,7 @@ package actions
 
 import (
 	"context"
-	"github.com/ZhuchkovAA/loglib/internal/config"
+	"github.com/ZhuchkovAA/loglib/config"
 	"github.com/ZhuchkovAA/loglib/internal/domain/models"
 	"time"
 

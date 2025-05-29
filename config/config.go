@@ -1,4 +1,4 @@
-package loglib
+package config
 
 import (
 	"fmt"

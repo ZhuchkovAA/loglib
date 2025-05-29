@@ -2,11 +2,10 @@ package tests
 
 import (
 	"github.com/ZhuchkovAA/loglib"
+	"github.com/ZhuchkovAA/loglib/config"
 	"os"
 	"testing"
 	"time"
-
-	"github.com/ZhuchkovAA/loglib/internal/config"
 )
 
 func TestFallback_Create(t *testing.T) {
