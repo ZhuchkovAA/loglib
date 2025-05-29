@@ -3,7 +3,6 @@ package loglib
 import (
 	"encoding/json"
 	"github.com/ZhuchkovAA/loglib/internal/actions"
-	"github.com/ZhuchkovAA/loglib/internal/config"
 	"github.com/ZhuchkovAA/loglib/internal/domain/models"
 	"log"
 	"time"
@@ -16,7 +15,7 @@ type Client struct {
 	resender *actions.Resender
 }
 
-func New(cfg config.Config) (*Client, error) {
+func New(cfg Config) (*Client, error) {
 	log.SetFlags(0)
 
 	err := cfg.MustLoadConfig()
