@@ -24,7 +24,10 @@ func TestFallback_Create(t *testing.T) {
 	}
 
 	// Логируем сообщение
-	client.Log("ERROR", "test message", map[string]string{"env": "test"})
+	client.Info("test message", map[string]string{"env": "test"})
+	client.Warn("test message", map[string]string{"env": "test"})
+	client.Error("test message", map[string]string{"env": "test"})
+	client.Debug("test message", map[string]string{"env": "test"})
 
 	// Подождём чтобы run() успел обработать очередь
 	time.Sleep(500 * time.Millisecond)

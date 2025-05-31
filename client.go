@@ -3,11 +3,20 @@ package loglib
 import (
 	"encoding/json"
 	"github.com/ZhuchkovAA/loglib/config"
+	"github.com/ZhuchkovAA/loglib/constants"
 	"github.com/ZhuchkovAA/loglib/internal/actions"
 	"github.com/ZhuchkovAA/loglib/internal/domain/models"
 	"log"
 	"time"
 )
+
+type Logger interface {
+	Log(level int, message string, metadata map[string]string)
+	Info(message string, metadata map[string]string)
+	Warn(message string, metadata map[string]string)
+	Error(message string, metadata map[string]string)
+	Debug(message string, metadata map[string]string)
+}
 
 type Client struct {
 	queue    chan models.LogEntry
@@ -38,12 +47,17 @@ func New(cfg config.Config) (*Client, error) {
 	return client, nil
 }
 
-func (c *Client) Log(level, message string, metadata map[string]string) {
+func (c *Client) Log(level int, message string, metadata map[string]string) {
 	timeUnix := time.Now().Unix()
+
+	levelStr, ok := logc.ErrorLevels[level]
+	if !ok {
+		levelStr = "UNKNOWN"
+	}
 
 	c.queue <- models.LogEntry{
 		Service:   c.sender.Service,
-		Level:     level,
+		Level:     levelStr,
 		Message:   message,
 		Metadata:  metadata,
 		Timestamp: timeUnix,
@@ -54,7 +68,25 @@ func (c *Client) Log(level, message string, metadata map[string]string) {
 		metaJSON = []byte("<invalid metadata>")
 	}
 
-	log.Printf("[%s] %s\nMessage: %s\nMetadata: %s\n\n", level, time.Unix(timeUnix, 0), message, metaJSON)
+	color := logc.GetColorByLevel(level)
+	log.Printf("%s[%s] %s\nMessage: %s\nMetadata: %s%s\n\n",
+		color, levelStr, time.Unix(timeUnix, 0), message, metaJSON, logc.ColorReset)
+}
+
+func (c *Client) Info(message string, metadata map[string]string) {
+	c.Log(logc.LevelInfo, message, metadata)
+}
+
+func (c *Client) Warn(message string, metadata map[string]string) {
+	c.Log(logc.LevelWarn, message, metadata)
+}
+
+func (c *Client) Error(message string, metadata map[string]string) {
+	c.Log(logc.LevelError, message, metadata)
+}
+
+func (c *Client) Debug(message string, metadata map[string]string) {
+	c.Log(logc.LevelDebug, message, metadata)
 }
 
 func (c *Client) run() {
@@ -64,3 +96,5 @@ func (c *Client) run() {
 		}
 	}
 }
+
+var _ Logger = (*Client)(nil)
