@@ -2,11 +2,14 @@ package loglib
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/ZhuchkovAA/loglib/config"
 	"github.com/ZhuchkovAA/loglib/constants"
 	"github.com/ZhuchkovAA/loglib/internal/actions"
 	"github.com/ZhuchkovAA/loglib/internal/domain/models"
+	"io"
 	"log"
+	"os"
 	"time"
 )
 
@@ -26,8 +29,6 @@ type Client struct {
 }
 
 func New(cfg config.Config) (*Client, error) {
-	log.SetFlags(0)
-
 	err := cfg.MustLoadConfig()
 	if err != nil {
 		return nil, err
@@ -63,14 +64,7 @@ func (c *Client) Log(level int, message string, metadata map[string]string) {
 		Timestamp: timeUnix,
 	}
 
-	metaJSON, err := json.MarshalIndent(metadata, "", "  ")
-	if err != nil {
-		metaJSON = []byte("<invalid metadata>")
-	}
-
-	color := logc.GetColorByLevel(level)
-	log.Printf("%s[%s] %s\nMessage: %s\nMetadata: %s%s\n\n",
-		color, levelStr, time.Unix(timeUnix, 0), message, metaJSON, logc.ColorReset)
+	PrintColored(level, message, metadata, timeUnix)
 }
 
 func (c *Client) Info(message string, metadata map[string]string) {
@@ -94,6 +88,27 @@ func (c *Client) run() {
 		if err := c.sender.Send(entry); err != nil {
 			_ = c.fallback.Save(entry)
 		}
+	}
+}
+
+func PrintColored(level int, message string, metadata map[string]string, timestamp int64) {
+	metaJSON, err := json.MarshalIndent(metadata, "", "  ")
+	if err != nil {
+		metaJSON = []byte("<invalid metadata>")
+	}
+
+	color := logc.GetColorByLevel(level)
+
+	var output io.Writer = os.Stdout
+	if level == logc.LevelWarn || level == logc.LevelError {
+		output = os.Stderr
+	}
+
+	_, err = fmt.Fprintf(output, "%s[%s] %s\nMessage: %s\nMetadata: %s%s\n\n",
+		color, logc.ErrorLevels[level], time.Unix(timestamp, 0), message, metaJSON, logc.ColorReset)
+
+	if err != nil {
+		log.Printf("[LOGGER_ERROR] Ошибка вывода лога: %v", err)
 	}
 }
 
