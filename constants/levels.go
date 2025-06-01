@@ -1,4 +1,4 @@
-package logc
+package consts
 
 const (
 	LevelInfo = iota + 1

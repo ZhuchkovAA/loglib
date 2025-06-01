@@ -51,7 +51,7 @@ func New(cfg config.Config) (*Client, error) {
 func (c *Client) Log(level int, message string, metadata map[string]string) {
 	timeUnix := time.Now().Unix()
 
-	levelStr, ok := logc.ErrorLevels[level]
+	levelStr, ok := consts.ErrorLevels[level]
 	if !ok {
 		levelStr = "UNKNOWN"
 	}
@@ -68,19 +68,19 @@ func (c *Client) Log(level int, message string, metadata map[string]string) {
 }
 
 func (c *Client) Info(message string, metadata map[string]string) {
-	c.Log(logc.LevelInfo, message, metadata)
+	c.Log(consts.LevelInfo, message, metadata)
 }
 
 func (c *Client) Warn(message string, metadata map[string]string) {
-	c.Log(logc.LevelWarn, message, metadata)
+	c.Log(consts.LevelWarn, message, metadata)
 }
 
 func (c *Client) Error(message string, metadata map[string]string) {
-	c.Log(logc.LevelError, message, metadata)
+	c.Log(consts.LevelError, message, metadata)
 }
 
 func (c *Client) Debug(message string, metadata map[string]string) {
-	c.Log(logc.LevelDebug, message, metadata)
+	c.Log(consts.LevelDebug, message, metadata)
 }
 
 func (c *Client) run() {
@@ -97,15 +97,15 @@ func PrintColored(level int, message string, metadata map[string]string, timesta
 		metaJSON = []byte("<invalid metadata>")
 	}
 
-	color := logc.GetColorByLevel(level)
+	color := consts.GetColorByLevel(level)
 
 	var output io.Writer = os.Stdout
-	if level == logc.LevelWarn || level == logc.LevelError {
+	if level == consts.LevelWarn || level == consts.LevelError {
 		output = os.Stderr
 	}
 
 	_, err = fmt.Fprintf(output, "%s[%s] %s\nMessage: %s\nMetadata: %s%s\n\n",
-		color, logc.ErrorLevels[level], time.Unix(timestamp, 0), message, metaJSON, logc.ColorReset)
+		color, consts.ErrorLevels[level], time.Unix(timestamp, 0), message, metaJSON, consts.ColorReset)
 
 	if err != nil {
 		log.Printf("[LOGGER_ERROR] Ошибка вывода лога: %v", err)

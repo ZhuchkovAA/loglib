@@ -1,4 +1,4 @@
-package logc
+package consts
 
 const (
 	ColorReset  = "\033[0m"
