@@ -1,5 +1,8 @@
 github.com/ZhuchkovAA/protoRMRF v0.0.13 h1:wmFjG7pPvqU8eeNHwWetGo0+vV8IArU5Wya6E6enKVI=
 github.com/ZhuchkovAA/protoRMRF v0.0.13/go.mod h1:QuFw5NToHVZaPB5jZVJFOoDEVUmJQyeX0hS9ADmjixQ=
+github.com/ZhuchkovAA/protoRMRF v0.0.14/go.mod h1:QuFw5NToHVZaPB5jZVJFOoDEVUmJQyeX0hS9ADmjixQ=
+github.com/ZhuchkovAA/protoRMRF v0.0.15 h1:jk1wZxzTvrl7NKfPm7/zl0naUKyWdZCKHeRq2lFAEqw=
+github.com/ZhuchkovAA/protoRMRF v0.0.15/go.mod h1:QuFw5NToHVZaPB5jZVJFOoDEVUmJQyeX0hS9ADmjixQ=
 golang.org/x/net v0.25.0 h1:d/OCCoBEUq33pjydKrGQhw7IlUPI2Oylr+8qLx49kac=
 golang.org/x/net v0.25.0/go.mod h1:JkAGAh7GEvH74S6FOH42FLoXpXbE/aqXSrIQjXgsiwM=
 golang.org/x/sys v0.20.0 h1:Od9JTbYCk261bKm4M/mw7AklTlFYIa0bIp9BgSm1S8Y=

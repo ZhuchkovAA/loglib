@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func TestFallback_Create(t *testing.T) {
+func TestFallbackCreate(t *testing.T) {
 	fallbackFile := "test_fallback.log"
 	defer os.Remove(fallbackFile)
 
@@ -24,11 +24,11 @@ func TestFallback_Create(t *testing.T) {
 	}
 
 	// Логируем сообщение
-	client.Info("test message", map[string]string{"env": "test"})
-	client.Warn("test message", map[string]string{"env": "test"})
-	client.Error("test message", map[string]string{"env": "test"})
-	client.Debug("test message", map[string]string{"env": "test"})
-	client.Log(11, "test message", map[string]string{"env": "test"})
+	client.Info("test message", loglib.String("env", "test"))
+	client.Warn("test message", loglib.String("env", "test"))
+	client.Error("test message", loglib.String("env", "test"))
+	client.Debug("test message", loglib.String("env", "test"))
+	client.Log(11, "test message", loglib.String("env", "test"))
 
 	// Подождём чтобы run() успел обработать очередь
 	time.Sleep(500 * time.Millisecond)

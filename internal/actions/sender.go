@@ -35,7 +35,7 @@ func (s *Sender) Send(log models.LogEntry) error {
 		Service:   log.Service,
 		Level:     log.Level,
 		Message:   log.Message,
-		Metadata:  log.Metadata,
+		Fields:    log.Metadata,
 		Timestamp: log.Timestamp,
 	})
 
