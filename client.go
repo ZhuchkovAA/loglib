@@ -15,11 +15,11 @@ import (
 )
 
 type Logger interface {
-	Log(level int, msg string, fields ...Field) (err error)
-	Info(msg string, fields ...Field) (err error)
-	Warn(msg string, fields ...Field) (err error)
-	Error(msg string, fields ...Field) (err error)
-	Debug(msg string, fields ...Field) (err error)
+	Log(level int, msg string, fields ...Field)
+	Info(msg string, fields ...Field)
+	Warn(msg string, fields ...Field)
+	Error(msg string, fields ...Field)
+	Debug(msg string, fields ...Field)
 }
 
 type Field struct {
@@ -59,7 +59,7 @@ func New(cfg config.Config) (*Client, error) {
 	return client, nil
 }
 
-func (c *Client) Log(level int, message string, fields ...Field) (err error) {
+func (c *Client) Log(level int, message string, fields ...Field) {
 	timeUnix := time.Now().Unix()
 
 	levelStr, ok := consts.ErrorLevels[level]
@@ -71,7 +71,8 @@ func (c *Client) Log(level int, message string, fields ...Field) (err error) {
 	for _, field := range fields {
 		val, err := structpb.NewValue(field.Value)
 		if err != nil {
-			return err
+			log.Println(err)
+			return
 		}
 		metadata[field.Key] = val
 	}
@@ -85,23 +86,22 @@ func (c *Client) Log(level int, message string, fields ...Field) (err error) {
 	}
 
 	PrintColored(level, message, timeUnix, metadata)
-	return nil
 }
 
-func (c *Client) Info(message string, fields ...Field) (err error) {
-	return c.Log(consts.LevelInfo, message, fields...)
+func (c *Client) Info(message string, fields ...Field) {
+	c.Log(consts.LevelInfo, message, fields...)
 }
 
-func (c *Client) Warn(message string, fields ...Field) (err error) {
-	return c.Log(consts.LevelWarn, message, fields...)
+func (c *Client) Warn(message string, fields ...Field) {
+	c.Log(consts.LevelWarn, message, fields...)
 }
 
-func (c *Client) Error(message string, fields ...Field) (err error) {
-	return c.Log(consts.LevelError, message, fields...)
+func (c *Client) Error(message string, fields ...Field) {
+	c.Log(consts.LevelError, message, fields...)
 }
 
-func (c *Client) Debug(message string, fields ...Field) (err error) {
-	return c.Log(consts.LevelDebug, message, fields...)
+func (c *Client) Debug(message string, fields ...Field) {
+	c.Log(consts.LevelDebug, message, fields...)
 }
 
 func (c *Client) run() {
