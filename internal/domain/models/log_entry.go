@@ -7,5 +7,5 @@ type LogEntry struct {
 	Level     string
 	Message   string
 	Metadata  map[string]*structpb.Value
-	Timestamp int32
+	Timestamp int64
 }
