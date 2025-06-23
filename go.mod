@@ -3,7 +3,7 @@ module github.com/ZhuchkovAA/loglib
 go 1.24.1
 
 require (
-	github.com/ZhuchkovAA/protoRMRF v0.0.15
+	github.com/ZhuchkovAA/protoRMRF v0.0.43
 	google.golang.org/grpc v1.64.0
 )
 
