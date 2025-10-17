@@ -1,4 +1,4 @@
-package actions
+package service
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ func NewFallback(path string) *Fallback {
 	return &Fallback{path: path}
 }
 
-func (f *Fallback) Save(entry models.LogEntry) error {
+func (f *Fallback) Save(entry *models.LogEntry) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 

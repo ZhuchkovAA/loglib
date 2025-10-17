@@ -2,7 +2,7 @@ package tests
 
 import (
 	"github.com/ZhuchkovAA/loglib"
-	"github.com/ZhuchkovAA/loglib/config"
+	"github.com/ZhuchkovAA/loglib/internal/config"
 	"os"
 	"testing"
 	"time"

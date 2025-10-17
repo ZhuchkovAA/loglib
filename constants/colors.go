@@ -1,7 +1,12 @@
 package consts
 
+import (
+	"fmt"
+	"io"
+)
+
 const (
-	ColorReset  = "\033[0m"
+	сolorReset  = "\033[0m"
 	colorRed    = "\033[31m"
 	colorGreen  = "\033[32m"
 	colorYellow = "\033[33m"
@@ -9,17 +14,24 @@ const (
 	colorGray   = "\033[90m"
 )
 
-func GetColorByLevel(level int) string {
-	colors := map[int]string{
+var (
+	colors = map[int]string{
 		LevelInfo:  colorBlue,
 		LevelWarn:  colorYellow,
 		LevelError: colorRed,
 		LevelDebug: colorGreen,
 	}
+)
 
+func GetColorByLevel(level int) string {
 	if color, ok := colors[level]; ok {
 		return color
 	}
 
 	return colorGray
+}
+
+func ColorFprintf(w io.Writer, color string, format string, a ...any) (int, error) {
+	format = fmt.Sprintf("%s%s%s", color, format, сolorReset)
+	return fmt.Fprintf(w, format, a...)
 }

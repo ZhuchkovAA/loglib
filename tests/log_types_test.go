@@ -2,8 +2,8 @@ package tests
 
 import (
 	"github.com/ZhuchkovAA/loglib"
-	"github.com/ZhuchkovAA/loglib/config"
 	consts "github.com/ZhuchkovAA/loglib/constants"
+	"github.com/ZhuchkovAA/loglib/internal/config"
 	"testing"
 )
 

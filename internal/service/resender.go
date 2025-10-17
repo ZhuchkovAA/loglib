@@ -1,4 +1,4 @@
-package actions
+package service
 
 import (
 	"bufio"
@@ -9,29 +9,27 @@ import (
 	"time"
 )
 
-type Resender struct {
+type ReSender struct {
 	path   string
 	sender *Sender
 	tick   *time.Ticker
 }
 
-func NewResender(path string, sender *Sender) *Resender {
-	r := &Resender{
+func NewReSender(path string, sender *Sender) *ReSender {
+	return &ReSender{
 		path:   path,
 		sender: sender,
 		tick:   time.NewTicker(10 * time.Second),
 	}
-	go r.loop()
-	return r
 }
 
-func (r *Resender) loop() {
+func (r *ReSender) Loop() {
 	for range r.tick.C {
 		r.resend()
 	}
 }
 
-func (r *Resender) resend() {
+func (r *ReSender) resend() {
 	file, err := os.OpenFile(r.path, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		return
@@ -43,8 +41,8 @@ func (r *Resender) resend() {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		var entry models.LogEntry
-		if err := json.Unmarshal([]byte(line), &entry); err != nil {
+		var entry *models.LogEntry
+		if err := json.Unmarshal([]byte(line), entry); err != nil {
 			continue
 		}
 
