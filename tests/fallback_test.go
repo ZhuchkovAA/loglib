@@ -1,24 +1,30 @@
 package tests
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"github.com/ZhuchkovAA/loglib"
-	"github.com/ZhuchkovAA/loglib/internal/config"
+	"github.com/ZhuchkovAA/loglib/pkg/config"
+	"github.com/ZhuchkovAA/loglib/pkg/models"
 	"os"
 	"testing"
 	"time"
 )
 
 func TestFallbackCreate(t *testing.T) {
-	fallbackFile := "test_fallback.log"
+	fallbackFile := "./test_fallback.log"
 	defer os.Remove(fallbackFile)
 
 	cfg := config.Config{
-		GRPCAddress:  "localhost:1", // сервис логов должен быть недоступен для теста
 		FallbackPath: fallbackFile,
 		ServiceName:  "test-service",
 	}
 
-	client, err := loglib.New(cfg)
+	client, err := loglib.NewLogger(context.Background(), cfg, func(log *models.Log) error {
+		fmt.Println("Начало обработки: ", log.Message, log.Level)
+		return errors.New("Test error")
+	})
 	if err != nil {
 		t.Fatalf("failed to create client: %v", err)
 	}
@@ -31,7 +37,7 @@ func TestFallbackCreate(t *testing.T) {
 	client.Log(11, "test message", loglib.String("env", "test"))
 
 	// Подождём чтобы run() успел обработать очередь
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(20500 * time.Millisecond)
 
 	// Проверим, что файл fallback появился
 	data, err := os.ReadFile(fallbackFile)

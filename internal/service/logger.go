@@ -1,75 +1,98 @@
 package service
 
 import (
-	consts "github.com/ZhuchkovAA/loglib/constants"
-	"github.com/ZhuchkovAA/loglib/internal/domain/models"
-	"google.golang.org/protobuf/types/known/structpb"
-	"log"
-	"time"
+	"github.com/ZhuchkovAA/loglib/pkg/constants"
+	"github.com/ZhuchkovAA/loglib/pkg/models"
+	"sync"
 )
 
-type clientSender interface {
-	Send(*models.LogEntry) error
-}
-
-type clientFallback interface {
-	Save(*models.LogEntry) error
+type LogStorage interface {
+	Save(*models.Log) error
 }
 
 type Logger struct {
-	Queue    chan *models.LogEntry
-	Sender   clientSender
-	Fallback clientFallback
-	ReSender *ReSender
+	ServiceName string
+	queue       chan *models.Log
+	SenderFunc  func(*models.Log) error
+	Storage     LogStorage
+	wg          sync.WaitGroup
+	mu          sync.RWMutex
+	closed      bool
 }
 
-func NewLogger(sender clientSender, fallback clientFallback) *Logger {
+func NewLogger(serviceName string, senderFunc func(*models.Log) error, storage LogStorage, bufferSize int) *Logger {
 	return &Logger{
-		Queue:    make(chan *models.LogEntry),
-		Sender:   sender,
-		Fallback: fallback,
+		ServiceName: serviceName,
+		queue:       make(chan *models.Log, bufferSize),
+		SenderFunc:  senderFunc,
+		Storage:     storage,
 	}
 }
 
-func (l *Logger) Log(level int, message string, fields ...models.Field) {
-	timeUnix := time.Now().Unix()
+func (l *Logger) Log(level int, message string, fields ...*models.Field) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
 
-	metadata := map[string]*structpb.Value{}
+	metadata := make(map[string]string)
+
 	for _, field := range fields {
-		val, err := structpb.NewValue(field.Value)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		metadata[field.Key] = val
+		metadata[field.Key] = field.Value
 	}
 
-	logMessage := models.NewLogEntry(level, message, metadata, timeUnix)
+	logMessage := models.NewLog(l.ServiceName, level, message, metadata)
 
-	l.Queue <- logMessage
+	l.AddToQueue(logMessage)
+
 	logMessage.PrintColored()
 }
 
-func (l *Logger) Info(message string, fields ...models.Field) {
-	l.Log(consts.LevelInfo, message, fields...)
+func (l *Logger) Close() {
+	l.mu.Lock()
+	l.closed = true
+	l.mu.Unlock()
+
+	close(l.queue)
+	l.wg.Wait()
 }
 
-func (l *Logger) Warn(message string, fields ...models.Field) {
-	l.Log(consts.LevelWarn, message, fields...)
+func (l *Logger) AddToQueue(log *models.Log) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+
+	if l.closed {
+		return
+	}
+
+	select {
+	case l.queue <- log:
+	default:
+		_ = l.Storage.Save(log)
+	}
 }
 
-func (l *Logger) Error(message string, fields ...models.Field) {
-	l.Log(consts.LevelError, message, fields...)
+func (l *Logger) Info(message string, fields ...*models.Field) {
+	l.Log(constants.LevelInfo, message, fields...)
 }
 
-func (l *Logger) Debug(message string, fields ...models.Field) {
-	l.Log(consts.LevelDebug, message, fields...)
+func (l *Logger) Warn(message string, fields ...*models.Field) {
+	l.Log(constants.LevelWarn, message, fields...)
+}
+
+func (l *Logger) Error(message string, fields ...*models.Field) {
+	l.Log(constants.LevelError, message, fields...)
+}
+
+func (l *Logger) Debug(message string, fields ...*models.Field) {
+	l.Log(constants.LevelDebug, message, fields...)
 }
 
 func (l *Logger) Run() {
-	for entry := range l.Queue {
-		if err := l.Sender.Send(entry); err != nil {
-			_ = l.Fallback.Save(entry)
+	l.wg.Add(1)
+	defer l.wg.Done()
+
+	for log := range l.queue {
+		if err := l.SenderFunc(log); err != nil {
+			_ = l.Storage.Save(log)
 		}
 	}
 }
