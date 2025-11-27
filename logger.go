@@ -14,6 +14,7 @@ type Logger interface {
 	Warn(msg string, fields ...*models.Field)
 	Error(msg string, fields ...*models.Field)
 	Debug(msg string, fields ...*models.Field)
+	Fatal(msg string, fields ...*models.Field)
 }
 
 func String(key, value string) *models.Field  { return models.NewField(key, value) }

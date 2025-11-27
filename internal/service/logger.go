@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/ZhuchkovAA/loglib/pkg/constants"
 	"github.com/ZhuchkovAA/loglib/pkg/models"
+	"os"
 	"sync"
 )
 
@@ -84,6 +85,11 @@ func (l *Logger) Error(message string, fields ...*models.Field) {
 
 func (l *Logger) Debug(message string, fields ...*models.Field) {
 	l.Log(constants.LevelDebug, message, fields...)
+}
+
+func (l *Logger) Fatal(message string, fields ...*models.Field) {
+	l.Error(message, fields...)
+	os.Exit(1)
 }
 
 func (l *Logger) Run() {
