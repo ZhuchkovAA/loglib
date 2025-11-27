@@ -5,7 +5,6 @@ import (
 	"github.com/ZhuchkovAA/loglib/internal/service"
 	"github.com/ZhuchkovAA/loglib/pkg/config"
 	"github.com/ZhuchkovAA/loglib/pkg/models"
-	"strconv"
 	"time"
 )
 
@@ -18,10 +17,10 @@ type Logger interface {
 }
 
 func String(key, value string) *models.Field  { return models.NewField(key, value) }
-func Int(key string, value int) *models.Field { return models.NewField(key, strconv.Itoa(value)) }
-func Error(err error) *models.Field           { return models.NewField("error", err.Error()) }
+func Int(key string, value int) *models.Field { return models.NewField(key, value) }
+func Error(err error) *models.Field           { return models.NewField("error", err) }
 func Duration(key string, value time.Duration) *models.Field {
-	return models.NewField("error", value.String())
+	return models.NewField("error", value)
 }
 
 func NewLogger(ctx context.Context, cfg config.Config, fn func(*models.Log) error) (Logger, error) {
