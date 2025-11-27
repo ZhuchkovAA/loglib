@@ -40,15 +40,26 @@ func (l *Log) PrintColored() {
 		output = os.Stderr
 	}
 
-	_, err = constants.ColorFprintf(
-		output,
-		color,
-		"[%s] %s\nMessage: %s\nMetadata: %s\n\n",
-		constants.GetErrorLevelStr(l.Level),
-		time.Unix(l.Timestamp, 0),
-		l.Message,
-		metaJSON,
-	)
+	if len(l.Metadata) == 0 {
+		_, err = constants.ColorFprintf(
+			output,
+			color,
+			"[%s] %s\nMessage: %s\n",
+			constants.GetErrorLevelStr(l.Level),
+			time.Unix(l.Timestamp, 0),
+			l.Message,
+		)
+	} else {
+		_, err = constants.ColorFprintf(
+			output,
+			color,
+			"[%s] %s\nMessage: %s\nMetadata: %s\n",
+			constants.GetErrorLevelStr(l.Level),
+			time.Unix(l.Timestamp, 0),
+			l.Message,
+			metaJSON,
+		)
+	}
 
 	if err != nil {
 		log.Printf("[LOGGER_ERROR] Ошибка вывода лога: %v", err)
