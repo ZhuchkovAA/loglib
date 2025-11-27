@@ -13,11 +13,11 @@ type Log struct {
 	Service   string
 	Level     int
 	Message   string
-	Metadata  map[string]string
+	Metadata  map[string]any
 	Timestamp int64
 }
 
-func NewLog(service string, level int, message string, metadata map[string]string) *Log {
+func NewLog(service string, level int, message string, metadata map[string]any) *Log {
 	return &Log{
 		Service:   service,
 		Level:     level,

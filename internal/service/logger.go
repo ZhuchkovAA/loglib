@@ -33,7 +33,7 @@ func (l *Logger) Log(level int, message string, fields ...*models.Field) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 
-	metadata := make(map[string]string)
+	metadata := make(map[string]any)
 
 	for _, field := range fields {
 		metadata[field.Key] = field.Value
