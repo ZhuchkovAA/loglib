@@ -24,10 +24,12 @@ func Duration(key string, value time.Duration) *models.Field {
 	return models.NewField("error", value)
 }
 
-func NewLogger(ctx context.Context, cfg config.Config, fn func(*models.Log) error) (Logger, error) {
+func NewLogger(cfg config.Config, fn func(*models.Log) error) (Logger, context.CancelFunc, error) {
+	ctx, cancel := context.WithCancel(context.Background())
+
 	err := cfg.MustLoadConfig()
 	if err != nil {
-		return nil, err
+		return nil, cancel, err
 	}
 
 	storage := service.NewFallback(cfg.FallbackPath)
@@ -43,5 +45,5 @@ func NewLogger(ctx context.Context, cfg config.Config, fn func(*models.Log) erro
 	reSender := service.NewReSender(logger, storage)
 	go reSender.Loop(ctx)
 
-	return logger, nil
+	return logger, cancel, nil
 }
